@@ -12,9 +12,9 @@ export class CartManager{
                 const cartsJS = JSON.parse(carts);
                 const checkCart = cartsJS.find((cart) => cart.id === idCart)
                     if (!checkCart){
-                        return 'El carrito no existe';
+                        return [];
                     } else {
-                        return checkCart;
+                        return [checkCart];
                     }
             } else {
                 return [];

@@ -28,6 +28,16 @@ export class ProductManager{
         return maxId;
     }
 
+    // {
+    //     "title": "Hol4",
+    //     "description": "asd",
+    //     "price": 2,
+    //     "stock": 5,
+    //     "status": true,
+    //     "category": "a",
+    //     "code": "prueba1"
+    //   }
+
     async addProduct(obj){
         try {
             const product = {
