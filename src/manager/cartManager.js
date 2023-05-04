@@ -5,12 +5,17 @@ export class CartManager{
         this.path = path;
     }
 
-    async getProducts(){
+    async getCarts(idCart){
         try {
             if (fs.existsSync(this.path)) {
-                const products = await fs.promises.readFile(this.path,'utf-8');
-                const productsJS = JSON.parse(products);
-                return productsJS;
+                const carts = await fs.promises.readFile(this.path,'utf-8');
+                const cartsJS = JSON.parse(carts);
+                const checkCart = cartsJS.find((cart) => cart.id === idCart)
+                    if (!checkCart){
+                        return 'El carrito no existe';
+                    } else {
+                        return checkCart;
+                    }
             } else {
                 return [];
             }
@@ -21,94 +26,38 @@ export class CartManager{
 
     async #getMaxId(){
         let maxId = 0;
-        const products = await this.getProducts();
-        products.map((prod) => { 
-          if (prod.id > maxId) maxId = prod.id;                                       
+        const carts = await this.getCarts();
+        carts.map((cart) => { 
+          if (cart.id > maxId) maxId = cart.id;                                       
         });
         return maxId;
     }
 
-    async addProduct(obj){
+    async addCart(idProduct){
         try {
-            const product = {
+            const cart = {
                 id: await this.#getMaxId() + 1,
-                ...obj
-            };
-            const prueba = productFile.find((el) => el.code === product.code)
-            if (prueba) {
-                console.log('El producto ya existe.');
-                
-            } else if (!product.title) {
-                console.log('Falta el nombre'); 
-    
-            } else if (!product.description) {
-                console.log('Falta la descripción'); 
-            
-            } else if (!product.price) {
-                console.log('Falta el precio'); 
-            
-            } else if (!product.status) {
-                console.log('Falta el status'); 
-            
-            } else if (!product.category) {
-                console.log('Falta la categoría'); 
-
-            } else if (!product.code) {
-                console.log('Falta el código'); 
-            
-            } else if (!product.stock) {
-                console.log('Falta el stock'); 
-            
-            } else {
-                const productFile = await this.getProducts();
-                productFile.push(product);
-                await fs.promises.writeFile(this.path, JSON.stringify(productFile));
+                products: [{id: idProduct, quantity: 1}]
             }
+            const cartFile = await this.getCarts();
+            cartFile.push(cart);
+            await fs.promises.writeFile(this.path, JSON.stringify(cartFile));         
         } catch (error) {
             console.log(error);
         }
     }
 
-    async getProductById(idProduct){
+    async addProductToCart(idCart, idProduct){
         try {
-            const productID = await this.getProducts();
-            const checkProduct = productID.find((product) => product.id === idProduct)
-            if (!checkProduct){
-                return 'El producto no existe';
+            const cartsFile = await this.getCarts(idCart);
+            const cartIndex = cartsFile.findIndex(cart => cart.id === idCart);
+            const product = cartsFile[cartIndex].products.find(product => product.id == idProduct);
+            if (product) {
+                product.quantity += 1;
             } else {
-                return checkProduct;
+                cartsFile[cartIndex].products.push({ id: idProduct, quantity: 1 });
             }
-            
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    async updateProduct(obj, id){
-        try {
-            const productsFile = await this.getProducts();
-            const index = productsFile.findIndex(prod => prod.id === id);
-            if(index === -1){
-                throw new Error(`Id ${id} not found`)
-            } else {
-                productsFile[index] = { ...obj, id }
-            }
-            await fs.promises.writeFile(this.path, JSON.stringify(productsFile));
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    async deleteProduct(idProduct){
-        try {
-            const productFile = await this.getProducts();
-            const resultado = productFile.filter((product) => product.id !== idProduct);
-            if (productFile == resultado) {
-                return console.log('El producto no existe!!');
-            } else {
-                await fs.promises.writeFile(this.path, JSON.stringify(resultado));
-                console.log('Producto eliminado!')
-            }                      
+            await fs.promises.writeFile(this.path, JSON.stringify(cartsFile));            
         } catch (error) {
             console.log(error);
         }

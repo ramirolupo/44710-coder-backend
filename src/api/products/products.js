@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 import { ProductManager } from '../../manager/productManager.js';
-const productManager = new ProductManager('./productos.json');
+const productManager = new ProductManager('./src/data/productos.json');
 
 router.get('/', async(req, res) => {
     try {
