@@ -1,17 +1,30 @@
 import express from 'express';
-// import productsRouter from './api/products/products.js';
-// import cartRouter from './api/carts/carts.js';
+import { __dirname } from './path.js';
+import handlebars from 'express-handlebars';
+import viewsRouter from './routes/views.Router.js';
+import { Server } from 'socket.io';
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
+app.use(express.static(__dirname + '/public'));
 
-// app.use('/products', productsRouter);
-// app.use('/cart', cartRouter);
+app.engine('handlebars', handlebars.engine());
+app.set('views', __dirname + '/views');
+app.set('view engine', 'handlebars');
 
-const PORT = 8080;
+app.use('/', viewsRouter);
 
-app.listen(PORT, ()=>{
-    console.log(`Server ok en puerto: ${PORT}`);
+const httpServer = app.listen(8080, ()=>{
+    console.log('🚀 Server listening on port 8080');
+});
+
+const socketServer = new Server(httpServer);
+
+socketServer.on('connection', (socket) =>{
+    console.log('usuario conectado!', socket.id);
+    socket.on('disconnect', ()=>{
+        console.log('usuario desconectado!');
+    });
 });
