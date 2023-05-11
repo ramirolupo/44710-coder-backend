@@ -16,6 +16,10 @@ app.set('view engine', 'handlebars');
 
 app.use('/', viewsRouter);
 
+app.get('/', (req, res) => {
+    res.render('websockets')
+});
+
 const httpServer = app.listen(8080, ()=>{
     console.log('🚀 Server listening on port 8080');
 });
